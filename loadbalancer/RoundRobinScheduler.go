@@ -1,5 +1,7 @@
 package loadbalancer
 
+import "mojiayi-golang-algorithm/domain"
+
 type RoundRobinScheduler struct{}
 
 var currentServerIndex = -1
@@ -7,7 +9,7 @@ var currentServerIndex = -1
 /**
 * 普通轮询
  */
-func (s RoundRobinScheduler) Choose(serverList *[]ServerInfo) ServerInfo {
+func (s RoundRobinScheduler) Choose(serverList *[]domain.ServerInfo) domain.ServerInfo {
 	var nextServerIndex = currentServerIndex
 	if nextServerIndex < 0 {
 		nextServerIndex = 0

@@ -1,17 +1,19 @@
 package loadbalancer
 
+import "mojiayi-golang-algorithm/domain"
+
 type SmoothWeightedRoundRobinScheduler struct{}
 
 /**
  * 平滑权重轮询
  */
-func (s SmoothWeightedRoundRobinScheduler) Choose(serverList *[]ServerInfo) ServerInfo {
+func (s SmoothWeightedRoundRobinScheduler) Choose(serverList *[]domain.ServerInfo) domain.ServerInfo {
 	// 把所有服务节点的权重值相加，用于后续的计算
 	var weightSum int
 	for _, value := range *serverList {
 		weightSum += value.Weight
 	}
-	var chosenServer ServerInfo
+	var chosenServer domain.ServerInfo
 	var chosenIndex = -1
 
 	for index, value := range *serverList {

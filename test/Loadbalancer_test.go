@@ -2,6 +2,7 @@ package sorting_test
 
 import (
 	"fmt"
+	"mojiayi-golang-algorithm/domain"
 	"mojiayi-golang-algorithm/loadbalancer"
 	"strconv"
 	"testing"
@@ -9,15 +10,15 @@ import (
 
 var (
 	serverSize = 5
-	hosts      = make([]loadbalancer.ServerInfo, serverSize)
+	hosts      = make([]domain.ServerInfo, serverSize)
 
 	weights = []int{2, 6, 8, 7}
-	hosts2  = make([]loadbalancer.ServerInfo, len(weights))
+	hosts2  = make([]domain.ServerInfo, len(weights))
 )
 
 func init() {
 	for index := 0; index < serverSize; index++ {
-		var instance loadbalancer.ServerInfo
+		var instance domain.ServerInfo
 		instance.ServiceId = index
 		instance.Weight = index + 1
 		instance.ServiceName = "testService" + strconv.Itoa(index)
@@ -25,7 +26,7 @@ func init() {
 	}
 
 	for index := 0; index < len(weights); index++ {
-		var instance loadbalancer.ServerInfo
+		var instance domain.ServerInfo
 		instance.ServiceId = index
 		instance.Weight = index + 1
 		instance.ServiceName = "testService" + strconv.Itoa(index)
