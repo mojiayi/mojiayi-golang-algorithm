@@ -1,4 +1,4 @@
-package sorting_test
+package algorithm_test
 
 import (
 	sorting "mojiayi-golang-algorithm/sorting"
