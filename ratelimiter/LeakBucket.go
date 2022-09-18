@@ -15,14 +15,15 @@ type LeakBucket struct {
 	Interval          int64
 }
 
-func (c LeakBucket) TryAcquire(userId int64, uri string) bool {
+func (c LeakBucket) TryAcquire(userId int64, uri string) (bool, int64) {
 	mutex := &sync.Mutex{}
 
 	// 尝试获取本地锁，如果获取失败，直接返回
 	locked := mutex.TryLock()
-	isAcquire := false
+	var isAcquire bool
+	var difference int64
 	if !locked {
-		return isAcquire
+		return isAcquire, difference
 	}
 	var key = strconv.Itoa(int(userId)) + "-" + uri
 	lastAccessTime, ok := c.LastAccessTimeMap[key]
@@ -33,7 +34,7 @@ func (c LeakBucket) TryAcquire(userId int64, uri string) bool {
 		isAcquire = true
 	} else {
 		// 计算上次访问到现在是否有足够长的间隔
-		difference := nowMilli - lastAccessTime
+		difference = nowMilli - lastAccessTime
 		ok = difference-(c.Interval/(int64)(c.Qps)) >= 0
 		if ok {
 			c.LastAccessTimeMap[key] = nowMilli
@@ -42,5 +43,5 @@ func (c LeakBucket) TryAcquire(userId int64, uri string) bool {
 	}
 
 	mutex.Unlock()
-	return isAcquire
+	return isAcquire, difference
 }

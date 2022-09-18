@@ -13,14 +13,16 @@ type TokenBucket struct {
 	Interval          int64
 }
 
-func (c TokenBucket) TryAcquire(userId int64, uri string) bool {
+func (c TokenBucket) TryAcquire(userId int64, uri string) (bool, int64, int) {
 	mutex := &sync.Mutex{}
 
 	// 尝试获取本地锁，如果获取失败，直接返回
 	locked := mutex.TryLock()
-	isAcquire := false
+	var isAcquire bool
+	var difference int64
+	var remainToken int
 	if !locked {
-		return isAcquire
+		return isAcquire, int64(difference), remainToken
 	}
 	var key = strconv.Itoa(int(userId)) + "-" + uri
 	lastAccessTime, ok := c.LastAccessTimeMap[key]
@@ -31,14 +33,14 @@ func (c TokenBucket) TryAcquire(userId int64, uri string) bool {
 		c.RemainTokenMap[key] = c.Qps - 1
 		isAcquire = true
 	} else {
-		remainToken, ok := c.RemainTokenMap[key]
+		remainToken, ok = c.RemainTokenMap[key]
 		if !ok {
 			// 指定的key还没有访问记录，作为初次访问对待
 			c.LastAccessTimeMap[key] = nowMilli
 			c.RemainTokenMap[key] = c.Qps - 1
 			isAcquire = true
 		} else {
-			difference := time.Since(time.UnixMilli(lastAccessTime)).Milliseconds()
+			difference = time.Since(time.UnixMilli(lastAccessTime)).Milliseconds()
 			if difference >= c.Interval {
 				// 上次访问的时间间隔已经超过指定频率，作为初次访问对待
 				c.LastAccessTimeMap[key] = nowMilli
@@ -61,5 +63,5 @@ func (c TokenBucket) TryAcquire(userId int64, uri string) bool {
 	}
 
 	mutex.Unlock()
-	return isAcquire
+	return isAcquire, int64(difference), remainToken
 }
