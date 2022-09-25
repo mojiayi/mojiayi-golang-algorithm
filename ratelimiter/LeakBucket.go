@@ -15,7 +15,7 @@ type LeakBucket struct {
 	Interval          int64
 }
 
-func (c LeakBucket) TryAcquire(userId int64, uri string) (bool, int64) {
+func (c *LeakBucket) TryAcquire(userId int64, uri string) (bool, int64) {
 	mutex := &sync.Mutex{}
 
 	// 尝试获取本地锁，如果获取失败，直接返回

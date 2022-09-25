@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"mojiayi-golang-algorithm/ratelimiter"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 )
@@ -31,4 +32,17 @@ func TestTokenBucket(t *testing.T) {
 
 		time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
 	}
+}
+
+func TestSlidingWindow(t *testing.T) {
+	var instance = ratelimiter.SlidingWindow{Capacity: 2}
+	var wg sync.WaitGroup
+	wg.Add(10)
+
+	for i := 0; i < 10; i++ {
+		go instance.TryAcquire(&wg)
+
+		time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+	}
+	wg.Wait()
 }

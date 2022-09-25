@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+/**
+* 令牌桶算法的简单实现
+ */
 type TokenBucket struct {
 	LastAccessTimeMap map[string]int64
 	RemainTokenMap    map[string]int
@@ -13,7 +16,7 @@ type TokenBucket struct {
 	Interval          int64
 }
 
-func (c TokenBucket) TryAcquire(userId int64, uri string) (bool, int64, int) {
+func (c *TokenBucket) TryAcquire(userId int64, uri string) (bool, int64, int) {
 	mutex := &sync.Mutex{}
 
 	// 尝试获取本地锁，如果获取失败，直接返回
