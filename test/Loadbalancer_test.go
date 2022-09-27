@@ -5,6 +5,7 @@ import (
 	"mojiayi-golang-algorithm/domain"
 	"mojiayi-golang-algorithm/loadbalancer"
 	"strconv"
+	"sync"
 	"testing"
 )
 
@@ -42,14 +43,28 @@ func TestWeightedRandomScheduler(t *testing.T) {
 }
 
 func TestRoundRobinScheduler(t *testing.T) {
-	var serverScheduler loadbalancer.RoundRobinScheduler
-	var cycle = 10
+	var wg sync.WaitGroup
+	var done = make(chan bool, 1)
+	var serverScheduler = loadbalancer.RoundRobinScheduler{}
+	done <- true
+	var cycle = 100
+	var chosenArr = make([]int, cycle)
 	for count := 0; count < cycle; count++ {
-		var chosenInstance = serverScheduler.Choose(&hosts)
-		var expected = (count % serverSize) + 1
-		if chosenInstance.Weight != expected {
-			t.Errorf("chosenInstance[%v] excepted:%v,actual:%v", chosenInstance, expected, chosenInstance.Weight)
-		}
+		wg.Add(1)
+		go func(index int, chosenArr []int) {
+			<-done
+			defer wg.Done()
+			var chosenInstance = serverScheduler.Choose(&hosts)
+
+			chosenArr[index] = chosenInstance.Weight
+			done <- true
+
+		}(count, chosenArr)
+	}
+	wg.Wait()
+
+	for index, weight := range chosenArr {
+		fmt.Printf("chosen node index=%v,weight=%v\n", index, weight)
 	}
 }
 
