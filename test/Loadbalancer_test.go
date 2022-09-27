@@ -47,7 +47,7 @@ func TestRoundRobinScheduler(t *testing.T) {
 	var done = make(chan bool, 1)
 	var serverScheduler = loadbalancer.RoundRobinScheduler{}
 	done <- true
-	var cycle = 100
+	var cycle = 20
 	var chosenArr = make([]int, cycle)
 	for count := 0; count < cycle; count++ {
 		wg.Add(1)
