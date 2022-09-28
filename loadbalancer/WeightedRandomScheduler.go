@@ -10,7 +10,7 @@ type WeightedRandomScheduler struct{}
 /**
 * 加权随机，实现思路来自Ribbon源码。
  */
-func (s WeightedRandomScheduler) Choose(serverList *[]domain.ServerInfo) domain.ServerInfo {
+func (s *WeightedRandomScheduler) Choose(serverList *[]domain.ServerInfo) domain.ServerInfo {
 	// 把所有服务节点的权重值相加，用于后续的计算
 	var weightSum float64
 	for _, item := range *serverList {
