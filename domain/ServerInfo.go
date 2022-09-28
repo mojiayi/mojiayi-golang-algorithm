@@ -14,11 +14,11 @@ type ServerInfo struct {
 	 */
 	ServiceName string
 	/**
-	 * 服务节点固定权重值，在分配过程中不变
+	 * 配置权重值，在分配过程中不变
 	 */
 	Weight int
 	/**
-	 * 专门用于按权重轮询的动态权重值，在分配过程中变化
+	 * 当前权重值，在分配过程中变化
 	 */
 	CurrentWeight int
 }

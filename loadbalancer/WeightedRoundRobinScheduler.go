@@ -5,7 +5,7 @@ import "mojiayi-golang-algorithm/domain"
 type WeightedRoundRobinScheduler struct{}
 
 /**
- * 加权轮询，不管有多少个服务节点，权重值分别是多少，每运行@{code sum(server1.weight+server2.weight+...+serverN.weight)/2}个轮次，各服务节点的动态权重恢复默认值，从头开始分配
+ * 加权轮询，不管有多少个服务节点，权重值分别是多少，每运行@{code sum(server1.weight+server2.weight+...+serverN.weight)/2}个轮次，各服务节点的当前权重恢复默认值，从头开始分配
  *
  */
 func (s *WeightedRoundRobinScheduler) Choose(serverList *[]domain.ServerInfo) domain.ServerInfo {
