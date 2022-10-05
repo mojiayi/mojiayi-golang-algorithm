@@ -2,7 +2,7 @@ package sorting
 
 type QuickSortingTraditional struct{}
 
-func (s QuickSortingTraditional) Sort(arr *[]int) []int {
+func (s *QuickSortingTraditional) Sort(arr *[]int) []int {
 	var length = len(*arr)
 	if length == 0 {
 		return *arr

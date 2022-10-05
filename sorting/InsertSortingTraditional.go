@@ -5,7 +5,7 @@ type InsertSortingTraditional struct{}
 /**
 * 传统的插入排序
  */
-func (s InsertSortingTraditional) Sort(arr *[]int) []int {
+func (s *InsertSortingTraditional) Sort(arr *[]int) []int {
 	var length = len(*arr)
 	var sortedArr = make([]int, length)
 	for index, value := range *arr {

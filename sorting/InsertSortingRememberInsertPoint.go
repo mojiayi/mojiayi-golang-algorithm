@@ -5,7 +5,7 @@ type InsertSortingRememberInsertPoint struct{}
 /**
 * 记录上次插入点下标的插入排序，下一轮先判断新的待排序数值大于还是小于上次排序的数值
  */
-func (s InsertSortingRememberInsertPoint) Sort(arr *[]int) []int {
+func (s *InsertSortingRememberInsertPoint) Sort(arr *[]int) []int {
 	var length = len(*arr)
 	var sortedArr = make([]int, length)
 	var insertPoint = -1
@@ -42,7 +42,7 @@ func (s InsertSortingRememberInsertPoint) Sort(arr *[]int) []int {
 					break
 				}
 			}
-			// 如果找到最前面还没有小于待排序元素的，就插入点是已排序下标的前一个位置
+			// 如果找到最前面还没有小于待排序元素的，则插入点是已排序下标的前一个位置
 			if newInsertPoint < 0 {
 				newInsertPoint = sortedStartPoint - 1
 			}

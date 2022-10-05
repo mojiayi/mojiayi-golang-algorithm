@@ -28,29 +28,29 @@ func TestBubbleSortingTraditional(t *testing.T) {
 }
 
 func TestInsertSortingTraditional(t *testing.T) {
-	var insertSorting sorting.InsertSortingTraditional
-	executeInsertSort(insertSorting, t)
+	var insertSorting = sorting.InsertSortingTraditional{}
+	executeInsertSort(&insertSorting, t)
 }
 
 func TestInsertSortingRememberInsertPoint(t *testing.T) {
-	var insertSorting sorting.InsertSortingRememberInsertPoint
-	executeInsertSort(insertSorting, t)
+	var insertSorting = sorting.InsertSortingRememberInsertPoint{}
+	executeInsertSort(&insertSorting, t)
 }
 
 func TestSelectionSortingTraditional(t *testing.T) {
-	var selectionSorting sorting.SelectionSortingTraditional
-	executeInsertSort(selectionSorting, t)
+	var selectionSorting = sorting.SelectionSortingTraditional{}
+	executeInsertSort(&selectionSorting, t)
 }
 
 func TestSelectionSortingOnlyOneArray(t *testing.T) {
-	var selectionSorting sorting.SelectionSortingOnlyOneArray
-	executeInsertSort(selectionSorting, t)
+	var selectionSorting = sorting.SelectionSortingOnlyOneArray{}
+	executeInsertSort(&selectionSorting, t)
 }
 
 func TestQuickSortingTraditional(t *testing.T) {
-	var quickSorting sorting.QuickSortingTraditional
+	var quickSorting = sorting.QuickSortingTraditional{}
 
-	executeInsertSort(quickSorting, t)
+	executeInsertSort(&quickSorting, t)
 }
 
 /**
