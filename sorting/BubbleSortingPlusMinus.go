@@ -5,7 +5,7 @@ type BubbleSortingPlusMinus struct{}
 /**
 * 使用两个数值相加相减实现数值交换的冒泡排序
  */
-func (s BubbleSortingPlusMinus) Sort(arr *[]int) []int {
+func (s *BubbleSortingPlusMinus) Sort(arr *[]int) []int {
 	size := len(*arr)
 	var i, j int
 	for i = 0; i < size; i++ {

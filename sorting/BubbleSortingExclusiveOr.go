@@ -5,7 +5,7 @@ type BubbleSortingExclusiveOr struct{}
 /**
 * 使用异或操作实现数值交换的冒泡排序
  */
-func (s BubbleSortingExclusiveOr) Sort(arr *[]int) []int {
+func (s *BubbleSortingExclusiveOr) Sort(arr *[]int) []int {
 	size := len(*arr)
 	var i, j int
 	for i = 0; i < size; i++ {

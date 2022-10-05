@@ -8,23 +8,23 @@ import (
 var arr = []int{4, 7, 2, 3, 9}
 
 func TestBubbleSortingExclusiveOr(t *testing.T) {
-	var bubbleSorting sorting.BubbleSortingExclusiveOr
-	executeBubbleSort(bubbleSorting, t)
+	var bubbleSorting = sorting.BubbleSortingExclusiveOr{}
+	executeBubbleSort(&bubbleSorting, t)
 }
 
 func TestBubbleSortingGoSwap(t *testing.T) {
-	var bubbleSorting sorting.BubbleSortingGoSwap
-	executeBubbleSort(bubbleSorting, t)
+	var bubbleSorting = sorting.BubbleSortingGoSwap{}
+	executeBubbleSort(&bubbleSorting, t)
 }
 
 func TestBubbleSortingPlusMinus(t *testing.T) {
-	var bubbleSorting sorting.BubbleSortingPlusMinus
-	executeBubbleSort(bubbleSorting, t)
+	var bubbleSorting = sorting.BubbleSortingPlusMinus{}
+	executeBubbleSort(&bubbleSorting, t)
 }
 
 func TestBubbleSortingTraditional(t *testing.T) {
-	var bubbleSorting sorting.BubbleSortingTraditional
-	executeBubbleSort(bubbleSorting, t)
+	var bubbleSorting = sorting.BubbleSortingTraditional{}
+	executeBubbleSort(&bubbleSorting, t)
 }
 
 func TestInsertSortingTraditional(t *testing.T) {

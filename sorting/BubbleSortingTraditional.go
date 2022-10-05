@@ -5,7 +5,7 @@ type BubbleSortingTraditional struct{}
 /**
 * 传统的冒泡排序，用一个临时变量实现数值交换
  */
-func (s BubbleSortingTraditional) Sort(arr *[]int) []int {
+func (s *BubbleSortingTraditional) Sort(arr *[]int) []int {
 	size := len(*arr)
 	var i, j int
 	for i = 0; i < size; i++ {
