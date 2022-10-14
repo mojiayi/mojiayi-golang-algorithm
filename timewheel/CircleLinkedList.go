@@ -5,13 +5,19 @@ import (
 	"fmt"
 )
 
+type Node struct {
+	ID   int
+	Data interface{}
+	Next *Node
+}
+
 type CircleLinkedList struct {
-	Head *SimpleTaskNode
-	Tail *SimpleTaskNode
+	Head *Node
+	Tail *Node
 	Size int
 }
 
-func (c *CircleLinkedList) AddToHead(node *SimpleTaskNode) {
+func (c *CircleLinkedList) AddToHead(node *Node) {
 	if c.Size == 0 {
 		node.Next = node
 		c.Tail = node
@@ -23,7 +29,7 @@ func (c *CircleLinkedList) AddToHead(node *SimpleTaskNode) {
 	c.Size++
 }
 
-func (c *CircleLinkedList) AddToTail(node *SimpleTaskNode) {
+func (c *CircleLinkedList) AddToTail(node *Node) {
 	if c.Size == 0 {
 		node.Next = node
 		c.Tail = node
@@ -37,36 +43,37 @@ func (c *CircleLinkedList) AddToTail(node *SimpleTaskNode) {
 }
 
 func (c *CircleLinkedList) DeleteHead() (bool, error) {
+	if c.Size == 0 {
+		return false, errors.New("链表中已经没有元素")
+	}
 	if c.Size > 1 {
 		c.Head = c.Head.Next
 		c.Tail.Next = c.Head
-		c.Size--
-		return true, nil
-	} else if c.Size == 1 {
+	} else {
 		c.Head = nil
 		c.Tail = nil
-		c.Size--
-		return true, nil
 	}
-	return false, errors.New("链表中已经没有元素")
+
+	c.Size--
+	return true, nil
 }
 
 func (c *CircleLinkedList) DeleteTail() (bool, error) {
+	if c.Size == 0 {
+		return false, errors.New("链表中已经没有元素")
+	}
 	if c.Size > 1 {
 		node := c.Head
 		for node.Next.ID != c.Tail.ID {
 			node = node.Next
 		}
 		node.Next = c.Head
-		c.Size--
-		return true, nil
 	} else if c.Size == 1 {
 		c.Head = nil
 		c.Tail = nil
-		c.Size--
-		return true, nil
 	}
-	return false, errors.New("链表中已经没有元素")
+	c.Size--
+	return true, nil
 }
 
 func (c *CircleLinkedList) Print() {
