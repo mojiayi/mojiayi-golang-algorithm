@@ -2,10 +2,11 @@ package algorithm_test
 
 import (
 	"mojiayi-golang-algorithm/linkedlist"
+	"mojiayi-golang-algorithm/timewheel"
 	"testing"
 )
 
-func TestSimpleTaskNodeLinkedList(t *testing.T) {
+func TestCircleLinkedList(t *testing.T) {
 	taskList := make([]string, 3)
 	taskList[0] = "任务0"
 	taskList[1] = "任务1"
@@ -23,4 +24,27 @@ func TestSimpleTaskNodeLinkedList(t *testing.T) {
 
 	linkedList.DeleteTail()
 	linkedList.Print()
+}
+
+func TestSimpleTimeWheel(t *testing.T) {
+	simpleTimeWheel := timewheel.SimpleTimeWheel{}
+	instance, err := simpleTimeWheel.New()
+	if err != nil {
+		t.Errorf("构建简单时间轮失败%v", err)
+	}
+	instance.AddOnceTask(1)
+	instance.AddOnceTask(1)
+	instance.AddOnceTask(3)
+	instance.AddOnceTask(3)
+	instance.AddOnceTask(4)
+	instance.AddOnceTask(5)
+	instance.AddOnceTask(6)
+	instance.AddOnceTask(7)
+	instance.AddOnceTask(8)
+	instance.AddOnceTask(9)
+	instance.AddOnceTask(10)
+	instance.AddOnceTask(10)
+	instance.AddOnceTask(10)
+	instance.AddOnceTask(20)
+	instance.ExecuteTask()
 }
