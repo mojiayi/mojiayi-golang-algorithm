@@ -3,71 +3,23 @@ package timewheel
 import (
 	"errors"
 	"fmt"
+	"mojiayi-golang-algorithm/domain"
 	"mojiayi-golang-algorithm/linkedlist"
 	"strconv"
 	"time"
 )
 
 type SimpleTimeWheel struct {
-	/**
-	* 最大刻度值，单位为秒
-	 */
-	MaxScale int
-	/**
-	* 当前刻度值，单位为秒
-	 */
-	CurrentScale int
-	/**
-	* 启动时间，单位为秒
-	 */
-	StartupTime int
-	/**
-	* 当前时间，单位为秒
-	 */
-	CurrentTime int
-	/**
-	* 任务列表
-	 */
-	TaskNodeList *linkedlist.CircleLinkedList
+	domain.MojiayiTimeWheel
 }
 
-type TaskNode struct {
-	/**
-	* 任务节点id
-	 */
-	ID int
-	/**
-	* 所属刻度，单位为秒
-	 */
-	Scale int
+type SimpleTaskNode struct {
+	domain.TaskNode
 	/**
 	* 属于同一节点的任务
 	 */
-	TaskDetailList *[]TaskDetail
+	TaskDetailList *[]domain.TaskDetail
 }
-
-type TaskDetail struct {
-	/**
-	* 任务id
-	 */
-	ID string
-	/**
-	* 延迟时间，单位为秒
-	 */
-	Delay int
-	/**
-	* 所属刻度，单位为秒
-	 */
-	Scale int
-	/**
-	* 是否重复执行
-	 */
-	RepeatFlag bool
-}
-
-var (
-	MAX_SCALE int = 60
-)
 
 /**
 * 创建一个刻度范围只有60秒的简单时间轮
@@ -75,14 +27,17 @@ var (
 func (s *SimpleTimeWheel) New() (*SimpleTimeWheel, error) {
 	now := time.Second
 	simpleTimeWheel := new(SimpleTimeWheel)
-	simpleTimeWheel.MaxScale = MAX_SCALE
+	simpleTimeWheel.MaxScale = domain.MAX_SCALE
 	simpleTimeWheel.CurrentScale = 0
 	simpleTimeWheel.StartupTime = int(now)
 	simpleTimeWheel.CurrentTime = int(now)
 	simpleTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
-	for scale := 0; scale < MAX_SCALE; scale++ {
-		taskDetailList := make([]TaskDetail, 0, 16)
-		taskNode := TaskNode{ID: scale, Scale: scale, TaskDetailList: &taskDetailList}
+	for scale := 0; scale < domain.MAX_SCALE; scale++ {
+		taskDetailList := make([]domain.TaskDetail, 0, 16)
+		taskNode := SimpleTaskNode{}
+		taskNode.ID = scale + 1
+		taskNode.Scale = scale
+		taskNode.TaskDetailList = &taskDetailList
 		simpleTimeWheel.TaskNodeList.AddToTail(&linkedlist.Node{ID: scale, Data: taskNode})
 	}
 	return simpleTimeWheel, nil
@@ -110,7 +65,7 @@ func (s *SimpleTimeWheel) AddTask(delay int, repeatFlag bool) error {
 	}
 
 	id := strconv.Itoa(taskNode.ID) + "-" + strconv.Itoa(len(*taskNode.TaskDetailList)+1)
-	newTask := TaskDetail{ID: id, Scale: scale, Delay: delay, RepeatFlag: repeatFlag}
+	newTask := domain.TaskDetail{ID: id, Scale: scale, Delay: delay, RepeatFlag: repeatFlag}
 
 	*taskNode.TaskDetailList = append(*taskNode.TaskDetailList, newTask)
 
@@ -131,7 +86,7 @@ func (s *SimpleTimeWheel) ExecuteTask() {
 	node := s.TaskNodeList.Head
 
 	for {
-		taskList := node.Data.(TaskNode).TaskDetailList
+		taskList := node.Data.(SimpleTaskNode).TaskDetailList
 		if len(*taskList) > 0 {
 			for _, task := range *taskList {
 				fmt.Println("执行任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ")")
@@ -145,16 +100,16 @@ func (s *SimpleTimeWheel) ExecuteTask() {
 /**
 * 找到对应刻度的节点
  */
-func (s *SimpleTimeWheel) findNodeByScale(scale int) (TaskNode, error) {
+func (s *SimpleTimeWheel) findNodeByScale(scale int) (SimpleTaskNode, error) {
 	node := s.TaskNodeList.Head.Next
 	for node.ID != s.TaskNodeList.Head.ID {
-		taskNode := node.Data.(TaskNode)
+		taskNode := node.Data.(SimpleTaskNode)
 		if taskNode.Scale == scale {
 			return taskNode, nil
 		}
 		node = node.Next
 	}
-	return TaskNode{}, errors.New("没有scale=" + strconv.Itoa(scale) + "的节点")
+	return SimpleTaskNode{}, errors.New("没有scale=" + strconv.Itoa(scale) + "的节点")
 }
 
 /**
