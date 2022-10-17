@@ -3,7 +3,8 @@ package domain
 import "mojiayi-golang-algorithm/linkedlist"
 
 var (
-	MAX_SCALE int = 60
+	MAX_SCALE    int = 60
+	ONE_THOUSAND     = 1000
 )
 
 type MojiayiTimeWheel struct {
@@ -57,4 +58,8 @@ type TaskDetail struct {
 	* 是否重复执行
 	 */
 	RepeatFlag bool
+	/**
+	* 创建时间，单位为秒
+	 */
+	CreateTime int
 }
