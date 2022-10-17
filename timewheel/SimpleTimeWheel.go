@@ -9,10 +9,16 @@ import (
 	"time"
 )
 
+/**
+* 简单时间轮
+ */
 type SimpleTimeWheel struct {
 	domain.MojiayiTimeWheel
 }
 
+/**
+* 简单时间轮的节点
+ */
 type SimpleTaskNode struct {
 	domain.TaskNode
 	/**

@@ -9,10 +9,16 @@ import (
 	"time"
 )
 
+/**
+* 添加了轮次概念的时间轮
+ */
 type RoundTimeWheel struct {
 	domain.MojiayiTimeWheel
 }
 
+/**
+* 轮次时间轮的节点
+ */
 type RoundTaskNode struct {
 	domain.TaskNode
 	/**
@@ -21,6 +27,9 @@ type RoundTaskNode struct {
 	TaskDetailList *[]RoundTaskDetail
 }
 
+/**
+* 轮次时间轮的任务详情
+ */
 type RoundTaskDetail struct {
 	domain.TaskDetail
 	/**
