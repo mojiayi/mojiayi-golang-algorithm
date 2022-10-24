@@ -6,6 +6,7 @@ import (
 	"mojiayi-golang-algorithm/domain"
 	"mojiayi-golang-algorithm/linkedlist"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -33,13 +34,17 @@ type RoundTaskNode struct {
 type RoundTaskDetail struct {
 	domain.TaskDetail
 	/**
-	* 任务轮次
+	* 任务轮次，任务创建后固定不变
 	 */
 	Round int
 	/**
-	* 创建时间，单位为秒
+	* 当前轮次，调度过程中递增
 	 */
-	PreviousRoundTime int
+	currentRound int
+	/**
+	* 当前刻度，单位为秒，调度过程中递增
+	 */
+	currentScale int
 }
 
 /**
@@ -80,7 +85,7 @@ func (s *RoundTimeWheel) AddTask(delay int, repeatFlag bool) error {
 		return err
 	}
 
-	taskNode, err := s.findNodeByRoundAndScale(round, scale)
+	taskNode, err := s.findNodeByScale(scale)
 	if err != nil {
 		return err
 	}
@@ -90,12 +95,13 @@ func (s *RoundTimeWheel) AddTask(delay int, repeatFlag bool) error {
 	newTask.ID = id
 	newTask.Scale = scale
 	newTask.Round = round
+	newTask.currentRound = 0
+	newTask.currentScale = 0
 	newTask.Delay = delay
 	newTask.RepeatFlag = repeatFlag
 
 	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	newTask.CreateTime = now
-	newTask.PreviousRoundTime = now
 
 	*taskNode.TaskDetailList = append(*taskNode.TaskDetailList, newTask)
 
@@ -113,38 +119,84 @@ func (s *RoundTimeWheel) DeleteTask(node *linkedlist.Node) (bool, error) {
 * 调度并执行任务
  */
 func (s *RoundTimeWheel) ExecuteTask() {
+	var wg sync.WaitGroup
 	node := s.TaskNodeList.Head
 
+	for node.Next.ID != s.TaskNodeList.Head.ID {
+		wg.Add(1)
+		go func() {
+			s.executeSameScaleTask(node.Data.(RoundTaskNode).TaskDetailList)
+
+			defer wg.Done()
+		}()
+		node = node.Next
+	}
+	wg.Wait()
+}
+
+func (s *RoundTimeWheel) executeSameScaleTask(taskList *[]RoundTaskDetail) {
 	for {
-		now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
-		taskList := *node.Data.(RoundTaskNode).TaskDetailList
-		if len(taskList) > 0 {
-			for index, task := range taskList {
-				if task.Delay == 62 {
-					fmt.Println("遇到62")
-				}
-				if task.Round == 0 {
-					fmt.Println("执行任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
-				} else if task.Round > 0 {
-					taskList[index].Round = task.Round - 1
-					taskList[index].PreviousRoundTime = now
-					roundTaskNode := RoundTaskNode{}
-					roundTaskNode.ID = node.Data.(RoundTaskNode).ID
-					roundTaskNode.Scale = node.Data.(RoundTaskNode).Scale
-					roundTaskNode.TaskDetailList = &taskList
-					(*node).Data = roundTaskNode
+		if len(*taskList) == 0 {
+			time.Sleep(time.Duration(1) * time.Second)
+			continue
+		}
+		for index, task := range *taskList {
+			if task.ExecuteFlag {
+				continue
+			}
+			runnable := s.isRunnable(task)
+			if runnable {
+				fmt.Println("执行任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
+				(*taskList)[index].ExecuteFlag = true
+				continue
+			}
+
+			currentRound := (*taskList)[index].currentRound
+			currentScale := (*taskList)[index].currentScale
+
+			addRoundFlag := false
+			currentScale += 1
+			if currentScale == s.MaxScale {
+				currentScale = 0
+				addRoundFlag = true
+			}
+
+			if addRoundFlag {
+				currentRound += 1
+				if currentRound >= task.Round {
+					currentRound = task.Round
 				}
 			}
+
+			fmt.Println("任务(id=" + task.ID + ")最新计时round=" + strconv.Itoa(currentRound) + ",scale=" + strconv.Itoa(currentScale))
+			(*taskList)[index].currentRound = currentRound
+			(*taskList)[index].currentScale = currentScale
 		}
-		node = node.Next
+
 		time.Sleep(time.Duration(1) * time.Second)
 	}
 }
 
 /**
-* 找到对应轮次和刻度的节点
+* 判断任务是否达到运行条件
  */
-func (s *RoundTimeWheel) findNodeByRoundAndScale(round int, scale int) (RoundTaskNode, error) {
+func (s *RoundTimeWheel) isRunnable(taskDetail RoundTaskDetail) bool {
+	if taskDetail.ExecuteFlag {
+		return false
+	}
+	if taskDetail.currentRound != taskDetail.Round {
+		return false
+	}
+	if taskDetail.currentScale != taskDetail.Scale {
+		return false
+	}
+	return true
+}
+
+/**
+* 找到对应刻度的节点
+ */
+func (s *RoundTimeWheel) findNodeByScale(scale int) (RoundTaskNode, error) {
 	node := s.TaskNodeList.Head.Next
 	for node.ID != s.TaskNodeList.Head.ID {
 		taskNode := node.Data.(RoundTaskNode)
