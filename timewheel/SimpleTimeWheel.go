@@ -31,12 +31,12 @@ type SimpleTaskNode struct {
 * 创建一个刻度范围只有60秒的简单时间轮
  */
 func (s *SimpleTimeWheel) New() (*SimpleTimeWheel, error) {
-	now := time.Second
+	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	simpleTimeWheel := new(SimpleTimeWheel)
 	simpleTimeWheel.MaxScale = domain.MAX_SCALE
 	simpleTimeWheel.CurrentScale = 0
-	simpleTimeWheel.StartupTime = int(now)
-	simpleTimeWheel.CurrentTime = int(now)
+	simpleTimeWheel.StartupTime = now
+	simpleTimeWheel.CurrentTime = now
 	simpleTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
 	for scale := 0; scale < domain.MAX_SCALE; scale++ {
 		taskDetailList := make([]domain.TaskDetail, 0, 16)
@@ -95,7 +95,7 @@ func (s *SimpleTimeWheel) ExecuteTask() {
 		taskList := node.Data.(SimpleTaskNode).TaskDetailList
 		if len(*taskList) > 0 {
 			for _, task := range *taskList {
-				fmt.Println("执行任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ")")
+				fmt.Println("执行简单时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ")")
 			}
 		}
 		node = node.Next
@@ -106,16 +106,16 @@ func (s *SimpleTimeWheel) ExecuteTask() {
 /**
 * 找到对应刻度的节点
  */
-func (s *SimpleTimeWheel) findNodeByScale(scale int) (SimpleTaskNode, error) {
+func (s *SimpleTimeWheel) findNodeByScale(scale int) (*SimpleTaskNode, error) {
 	node := s.TaskNodeList.Head.Next
 	for node.ID != s.TaskNodeList.Head.ID {
 		taskNode := node.Data.(SimpleTaskNode)
 		if taskNode.Scale == scale {
-			return taskNode, nil
+			return &taskNode, nil
 		}
 		node = node.Next
 	}
-	return SimpleTaskNode{}, errors.New("没有scale=" + strconv.Itoa(scale) + "的节点")
+	return nil, errors.New("没有scale=" + strconv.Itoa(scale) + "的节点")
 }
 
 /**

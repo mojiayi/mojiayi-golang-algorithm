@@ -63,12 +63,12 @@ type MultiLayerTaskNode struct {
 * 创建一个刻度范围只有60秒的分轮次时间轮
  */
 func (s *MultiLayerTimeWheel) New() (*MultiLayerTimeWheel, error) {
-	now := time.Now().UnixMilli() / int64(domain.ONE_THOUSAND)
+	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	multiLayerTimeWheel := new(MultiLayerTimeWheel)
 	multiLayerTimeWheel.MaxScale = domain.MAX_SCALE
 	multiLayerTimeWheel.CurrentScale = 0
-	multiLayerTimeWheel.StartupTime = int(now)
-	multiLayerTimeWheel.CurrentTime = int(now)
+	multiLayerTimeWheel.StartupTime = now
+	multiLayerTimeWheel.CurrentTime = now
 	multiLayerTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
 	for scale := 0; scale < domain.MAX_SCALE; scale++ {
 		taskDetailList := make([]MultiLayerTaskDetail, 0, 16)
@@ -161,7 +161,7 @@ func (s *MultiLayerTimeWheel) executeSameScaleTask(taskList *[]MultiLayerTaskDet
 			}
 			runnable := s.isRunnable(task)
 			if runnable {
-				fmt.Println("执行任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
+				fmt.Println("执行分层时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
 				(*taskList)[index].ExecuteFlag = true
 				continue
 			}
@@ -198,7 +198,7 @@ func (s *MultiLayerTimeWheel) executeSameScaleTask(taskList *[]MultiLayerTaskDet
 				}
 			}
 
-			fmt.Println("任务(id=" + task.ID + ")最新计时=" + strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute) + ":" + strconv.Itoa(currentSecond))
+			fmt.Println("分层时间轮任务(id=" + task.ID + ")最新计时=" + strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute) + ":" + strconv.Itoa(currentSecond))
 			(*taskList)[index].currentHour = currentHour
 			(*taskList)[index].currentMinute = currentMinute
 			(*taskList)[index].currentSecond = currentSecond

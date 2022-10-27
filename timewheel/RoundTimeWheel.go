@@ -51,12 +51,12 @@ type RoundTaskDetail struct {
 * 创建一个刻度范围只有60秒的分轮次时间轮
  */
 func (s *RoundTimeWheel) New() (*RoundTimeWheel, error) {
-	now := time.Now().UnixMilli() / int64(domain.ONE_THOUSAND)
+	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	roundTimeWheel := new(RoundTimeWheel)
 	roundTimeWheel.MaxScale = domain.MAX_SCALE
 	roundTimeWheel.CurrentScale = 0
-	roundTimeWheel.StartupTime = int(now)
-	roundTimeWheel.CurrentTime = int(now)
+	roundTimeWheel.StartupTime = now
+	roundTimeWheel.CurrentTime = now
 	roundTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
 	for scale := 0; scale < domain.MAX_SCALE; scale++ {
 		taskDetailList := make([]RoundTaskDetail, 0, 16)
@@ -146,7 +146,7 @@ func (s *RoundTimeWheel) executeSameScaleTask(taskList *[]RoundTaskDetail) {
 			}
 			runnable := s.isRunnable(task)
 			if runnable {
-				fmt.Println("执行任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
+				fmt.Println("执行轮次时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
 				(*taskList)[index].ExecuteFlag = true
 				continue
 			}
@@ -168,7 +168,7 @@ func (s *RoundTimeWheel) executeSameScaleTask(taskList *[]RoundTaskDetail) {
 				}
 			}
 
-			fmt.Println("任务(id=" + task.ID + ")最新计时round=" + strconv.Itoa(currentRound) + ",scale=" + strconv.Itoa(currentScale))
+			fmt.Println("轮次时间轮任务(id=" + task.ID + ")最新计时round=" + strconv.Itoa(currentRound) + ",scale=" + strconv.Itoa(currentScale))
 			(*taskList)[index].currentRound = currentRound
 			(*taskList)[index].currentScale = currentScale
 		}
