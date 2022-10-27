@@ -17,28 +17,38 @@ type CircleLinkedList struct {
 	Size int
 }
 
-func (c *CircleLinkedList) AddToHead(node *Node) {
+func (c *CircleLinkedList) AddToHead(newNode *Node) {
 	if c.Size == 0 {
-		node.Next = node
-		c.Tail = node
+		newNode.Next = newNode
+		c.Tail = newNode
 	} else {
-		c.Tail.Next = node
-		node.Next = c.Head
+		c.Tail.Next = newNode
+		newNode.Next = c.Head
 	}
-	c.Head = node
+	c.Head = newNode
 	c.Size++
 }
 
-func (c *CircleLinkedList) AddToTail(node *Node) {
+func (c *CircleLinkedList) AddToTail(newNode *Node) {
 	if c.Size == 0 {
-		node.Next = node
-		c.Tail = node
-		c.Head = node
+		newNode.Next = newNode
+		c.Tail = newNode
+		c.Head = newNode
 	} else {
-		c.Tail.Next = node
-		node.Next = c.Head
-		c.Tail = node
+		c.Tail.Next = newNode
+		newNode.Next = c.Head
+		c.Tail = newNode
 	}
+	c.Size++
+}
+
+func (c *CircleLinkedList) Add(newNode *Node, previousNode *Node) {
+	if previousNode.ID == c.Tail.ID {
+		c.AddToTail(newNode)
+		return
+	}
+	newNode.Next = previousNode.Next
+	previousNode.Next = newNode
 	c.Size++
 }
 
@@ -72,6 +82,32 @@ func (c *CircleLinkedList) DeleteTail() (bool, error) {
 		c.Head = nil
 		c.Tail = nil
 	}
+	c.Size--
+	return true, nil
+}
+
+func (c *CircleLinkedList) Delete(node *Node) (bool, error) {
+	if c.Size == 0 {
+		return false, errors.New("链表中已经没有元素")
+	}
+	if node.ID == c.Head.ID {
+		c.DeleteHead()
+		return true, nil
+	}
+	if node.ID == c.Tail.ID {
+		c.DeleteTail()
+		return true, nil
+	}
+	var previousNode = *c.Head
+	var nextNode = *c.Head.Next
+	for nextNode.ID != c.Head.ID {
+		if nextNode.ID == node.ID {
+			break
+		}
+		previousNode = nextNode
+		nextNode = *nextNode.Next
+	}
+	*previousNode.Next = *nextNode.Next
 	c.Size--
 	return true, nil
 }
