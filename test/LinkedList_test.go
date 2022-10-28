@@ -11,6 +11,7 @@ func TestCircleLinkedList(t *testing.T) {
 	taskList[0] = "任务0"
 	taskList[1] = "任务1"
 	taskList[2] = "任务2"
+
 	linkedList := linkedlist.CircleLinkedList{}
 	node2 := &linkedlist.Node{ID: 2}
 	node3 := &linkedlist.Node{ID: 3}
@@ -20,15 +21,38 @@ func TestCircleLinkedList(t *testing.T) {
 	node7 := &linkedlist.Node{ID: 7}
 	node8 := &linkedlist.Node{ID: 8}
 	linkedList.AddToHead(&linkedlist.Node{ID: 1, Data: taskList})
-	linkedList.AddToTail(node2)
-	linkedList.AddToTail(node4)
-	linkedList.Add(node3, node2)
-	linkedList.AddToTail(node5)
-	linkedList.Add(node6, node5)
-	linkedList.AddToTail(node8)
-	linkedList.Add(node7, node6)
+	fmt.Print("添加第一节点：")
+	linkedList.Print()
 
-	fmt.Print("初始链表：")
+	linkedList.AddToTail(node2)
+	fmt.Print("添加新的尾节点：")
+	linkedList.Print()
+
+	linkedList.AddToTail(node4)
+	fmt.Print("添加新的尾节点：")
+	linkedList.Print()
+
+	linkedList.Add(node3, node2)
+	fmt.Print("添加新节点到2之后：")
+	linkedList.Print()
+
+	linkedList.AddToTail(node5)
+	fmt.Print("添加新的尾节点：")
+	linkedList.Print()
+
+	linkedList.Add(node6, node5)
+	fmt.Print("添加新节点到5之后：")
+	linkedList.Print()
+
+	linkedList.AddToTail(node8)
+	fmt.Print("添加新的尾节点：")
+	linkedList.Print()
+
+	linkedList.Add(node7, node6)
+	fmt.Print("添加新节点到6之后：")
+	linkedList.Print()
+
+	fmt.Print("完成构建本测试用例的链表：")
 	linkedList.Print()
 
 	fmt.Print("删除链表头节点：")
