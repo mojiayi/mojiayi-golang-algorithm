@@ -91,16 +91,18 @@ func (s *SimpleTimeWheel) DeleteTask(node *linkedlist.Node) (bool, error) {
 func (s *SimpleTimeWheel) ExecuteTask() {
 	node := s.TaskNodeList.Head
 
-	for {
+	ticker := time.NewTicker(1 * time.Second)
+	for range ticker.C {
 		taskList := node.Data.(SimpleTaskNode).TaskDetailList
 		if len(*taskList) > 0 {
 			for _, task := range *taskList {
-				fmt.Println("执行简单时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ")")
+				fmt.Print("执行简单时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ")，")
+				fmt.Println("时间=" + time.Now().Format("2006-01-02 15:04:05"))
 			}
 		}
 		node = node.Next
-		time.Sleep(time.Duration(1) * time.Second)
 	}
+	ticker.Stop()
 }
 
 /**
