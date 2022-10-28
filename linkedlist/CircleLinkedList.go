@@ -6,14 +6,32 @@ import (
 )
 
 type Node struct {
-	ID   int
+	/**
+	* 数字类型的id，每个节点的id唯一
+	 */
+	ID int
+	/**
+	* 节点上可承载任意类型的业务数据
+	 */
 	Data interface{}
+	/**
+	* 下一节点
+	 */
 	Next *Node
 }
 
 type CircleLinkedList struct {
+	/**
+	* 头节点
+	 */
 	Head *Node
+	/**
+	* 尾节点
+	 */
 	Tail *Node
+	/**
+	* 链表中的节点数量
+	 */
 	Size int
 }
 
@@ -32,13 +50,12 @@ func (c *CircleLinkedList) AddToHead(newNode *Node) {
 func (c *CircleLinkedList) AddToTail(newNode *Node) {
 	if c.Size == 0 {
 		newNode.Next = newNode
-		c.Tail = newNode
 		c.Head = newNode
 	} else {
 		c.Tail.Next = newNode
 		newNode.Next = c.Head
-		c.Tail = newNode
 	}
+	c.Tail = newNode
 	c.Size++
 }
 
