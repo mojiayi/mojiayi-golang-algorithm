@@ -48,7 +48,7 @@ type RoundTaskDetail struct {
 }
 
 /**
-* 创建一个刻度范围只有60秒的分轮次时间轮
+* 创建一个刻度范围只有60秒的轮次时间轮
  */
 func (s *RoundTimeWheel) New() (*RoundTimeWheel, error) {
 	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
@@ -122,58 +122,57 @@ func (s *RoundTimeWheel) ExecuteTask() {
 	var wg sync.WaitGroup
 	node := s.TaskNodeList.Head
 
-	for node.Next.ID != s.TaskNodeList.Head.ID {
-		wg.Add(1)
-		go func() {
-			s.executeSameScaleTask(node.Data.(RoundTaskNode).TaskDetailList)
-
-			defer wg.Done()
-		}()
-		node = node.Next
+	ticker := time.NewTicker(1 * time.Second)
+	for range ticker.C {
+		for node.Next.ID != s.TaskNodeList.Head.ID {
+			taskList := node.Data.(RoundTaskNode).TaskDetailList
+			if len(*taskList) > 0 {
+				wg.Add(1)
+				go func() {
+					s.executeSameScaleTask(taskList)
+					defer wg.Done()
+				}()
+			}
+			node = node.Next
+		}
+		wg.Wait()
+		node = s.TaskNodeList.Head
 	}
-	wg.Wait()
 }
 
 func (s *RoundTimeWheel) executeSameScaleTask(taskList *[]RoundTaskDetail) {
-	for {
-		if len(*taskList) == 0 {
-			time.Sleep(time.Duration(1) * time.Second)
+	for index, task := range *taskList {
+		if task.ExecuteFlag {
 			continue
 		}
-		for index, task := range *taskList {
-			if task.ExecuteFlag {
-				continue
-			}
-			runnable := s.isRunnable(task)
-			if runnable {
-				fmt.Println("执行轮次时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
-				(*taskList)[index].ExecuteFlag = true
-				continue
-			}
-
-			currentRound := (*taskList)[index].currentRound
-			currentScale := (*taskList)[index].currentScale
-
-			addRoundFlag := false
-			currentScale += 1
-			if currentScale == s.MaxScale {
-				currentScale = 0
-				addRoundFlag = true
-			}
-
-			if addRoundFlag {
-				currentRound += 1
-				if currentRound >= task.Round {
-					currentRound = task.Round
-				}
-			}
-
-			fmt.Println("轮次时间轮任务(id=" + task.ID + ")最新计时round=" + strconv.Itoa(currentRound) + ",scale=" + strconv.Itoa(currentScale))
-			(*taskList)[index].currentRound = currentRound
-			(*taskList)[index].currentScale = currentScale
+		runnable := s.isRunnable(task)
+		if runnable {
+			fmt.Print("执行轮次时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")，")
+			fmt.Println("时间=" + time.Now().Format("2006-01-02 15:04:05"))
+			(*taskList)[index].ExecuteFlag = true
+			continue
 		}
 
-		time.Sleep(time.Duration(1) * time.Second)
+		currentRound := (*taskList)[index].currentRound
+		currentScale := (*taskList)[index].currentScale
+
+		addRoundFlag := false
+		currentScale += 1
+		if currentScale == s.MaxScale {
+			currentScale = 0
+			addRoundFlag = true
+		}
+
+		if addRoundFlag {
+			currentRound += 1
+			if currentRound >= task.Round {
+				currentRound = task.Round
+			}
+		}
+
+		// fmt.Println("轮次时间轮任务(id=" + task.ID + ")最新计时round=" + strconv.Itoa(currentRound) + ",scale=" + strconv.Itoa(currentScale))
+		(*taskList)[index].currentRound = currentRound
+		(*taskList)[index].currentScale = currentScale
 	}
 }
 
