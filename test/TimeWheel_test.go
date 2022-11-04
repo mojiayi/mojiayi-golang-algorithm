@@ -2,6 +2,7 @@ package algorithm_test
 
 import (
 	"mojiayi-golang-algorithm/timewheel"
+	"runtime"
 	"testing"
 )
 
@@ -11,6 +12,7 @@ func TestSimpleTimeWheel(t *testing.T) {
 	if err != nil {
 		t.Errorf("构建简单时间轮失败%v", err)
 	}
+
 	instance.AddOnceTask(1)
 	instance.AddOnceTask(1)
 	instance.AddOnceTask(3)
@@ -25,6 +27,7 @@ func TestSimpleTimeWheel(t *testing.T) {
 	instance.AddOnceTask(10)
 	instance.AddOnceTask(10)
 	instance.AddOnceTask(20)
+
 	instance.ExecuteTask()
 }
 
@@ -40,6 +43,8 @@ func TestRoundTimeWheel(t *testing.T) {
 	instance.AddOnceTask(2)
 	instance.AddOnceTask(69)
 
+	cpuNum := runtime.NumCPU() - 1
+	runtime.GOMAXPROCS(cpuNum)
 	instance.ExecuteTask()
 }
 
@@ -55,5 +60,7 @@ func TestMultiLayerTimeWheel(t *testing.T) {
 	instance.AddOnceTask(2)
 	instance.AddOnceTask(69)
 
+	cpuNum := runtime.NumCPU() - 1
+	runtime.GOMAXPROCS(cpuNum)
 	instance.ExecuteTask()
 }

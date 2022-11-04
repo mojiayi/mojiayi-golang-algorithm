@@ -137,74 +137,74 @@ func (s *MultiLayerTimeWheel) DeleteTask(node *linkedlist.Node) (bool, error) {
 func (s *MultiLayerTimeWheel) ExecuteTask() {
 	var wg sync.WaitGroup
 	node := s.TaskNodeList.Head
-	for node.Next.ID != s.TaskNodeList.Head.ID {
-		wg.Add(1)
-		go func() {
-			s.executeSameScaleTask(node.Data.(MultiLayerTaskNode).TaskDetailList)
 
-			defer wg.Done()
-		}()
-		node = node.Next
+	ticker := time.NewTicker(1 * time.Second)
+	for range ticker.C {
+		for node.Next.ID != s.TaskNodeList.Head.ID {
+			taskList := node.Data.(MultiLayerTaskNode).TaskDetailList
+			if len(*taskList) > 0 {
+				wg.Add(1)
+				go func() {
+					s.executeSameScaleTask(taskList)
+					defer wg.Done()
+				}()
+			}
+			node = node.Next
+		}
+		wg.Wait()
+		node = s.TaskNodeList.Head
 	}
-	wg.Wait()
 }
 
 func (s *MultiLayerTimeWheel) executeSameScaleTask(taskList *[]MultiLayerTaskDetail) {
-	for {
-		if len(*taskList) == 0 {
-			time.Sleep(time.Duration(1) * time.Second)
+	for index, task := range *taskList {
+		if task.ExecuteFlag {
 			continue
 		}
-		for index, task := range *taskList {
-			if task.ExecuteFlag {
-				continue
-			}
-			runnable := s.isRunnable(task)
-			if runnable {
-				fmt.Println("执行分层时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")")
-				(*taskList)[index].ExecuteFlag = true
-				continue
-			}
-			currentHour := (*taskList)[index].currentHour
-			currentMinute := (*taskList)[index].currentMinute
-			currentSecond := (*taskList)[index].currentSecond
+		runnable := s.isRunnable(task)
+		if runnable {
+			fmt.Print("执行分层时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ",delay=" + strconv.Itoa(task.Delay) + ")，")
+			fmt.Println("时间=" + time.Now().Format("2006-01-02 15:04:05"))
+			(*taskList)[index].ExecuteFlag = true
+			continue
+		}
+		currentHour := (*taskList)[index].currentHour
+		currentMinute := (*taskList)[index].currentMinute
+		currentSecond := (*taskList)[index].currentSecond
 
-			addMinuteFlag := false
-			addHourFlag := false
-			currentSecond += 1
-			if currentSecond == 60 {
-				currentSecond = 0
-				addMinuteFlag = true
+		addMinuteFlag := false
+		addHourFlag := false
+		currentSecond += 1
+		if currentSecond == 60 {
+			currentSecond = 0
+			addMinuteFlag = true
+		}
+		if addMinuteFlag {
+			currentMinute += 1
+			if currentMinute == 60 {
+				currentMinute = 0
+				addHourFlag = true
 			}
-			if addMinuteFlag {
-				currentMinute += 1
-				if currentMinute == 60 {
-					currentMinute = 0
-					addHourFlag = true
-				}
+		}
+		if addHourFlag {
+			if currentHour+1 <= task.Hour {
+				currentHour += 1
 			}
-			if addHourFlag {
-				if currentHour+1 <= task.Hour {
-					currentHour += 1
-				}
-			}
-
-			if currentHour == task.Hour {
-				if currentMinute > task.Minute {
-					currentMinute -= 1
-					if currentSecond > task.Second {
-						currentSecond -= 1
-					}
-				}
-			}
-
-			fmt.Println("分层时间轮任务(id=" + task.ID + ")最新计时=" + strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute) + ":" + strconv.Itoa(currentSecond))
-			(*taskList)[index].currentHour = currentHour
-			(*taskList)[index].currentMinute = currentMinute
-			(*taskList)[index].currentSecond = currentSecond
 		}
 
-		time.Sleep(time.Duration(1) * time.Second)
+		if currentHour == task.Hour {
+			if currentMinute > task.Minute {
+				currentMinute -= 1
+				if currentSecond > task.Second {
+					currentSecond -= 1
+				}
+			}
+		}
+
+		// fmt.Println("分层时间轮任务(id=" + task.ID + ")最新计时=" + strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute) + ":" + strconv.Itoa(currentSecond))
+		(*taskList)[index].currentHour = currentHour
+		(*taskList)[index].currentMinute = currentMinute
+		(*taskList)[index].currentSecond = currentSecond
 	}
 }
 
