@@ -49,8 +49,8 @@ func TestRoundTimeWheel(t *testing.T) {
 }
 
 func TestMultiLayerTimeWheel(t *testing.T) {
-	multiLayerTimeWheel := timewheel.MultiLayerTimeWheel{}
-	instance, err := multiLayerTimeWheel.New()
+	timingClock := timewheel.TimingClock{}
+	instance, err := timingClock.New()
 	if err != nil {
 		t.Errorf("构建分层时间轮失败%v", err)
 	}
@@ -60,7 +60,7 @@ func TestMultiLayerTimeWheel(t *testing.T) {
 	instance.AddOnceTask(2)
 	instance.AddOnceTask(69)
 
-	cpuNum := runtime.NumCPU() - 1
-	runtime.GOMAXPROCS(cpuNum)
+	instance.AddOnceTask(126)
+
 	instance.ExecuteTask()
 }
