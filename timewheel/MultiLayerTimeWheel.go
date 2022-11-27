@@ -65,12 +65,12 @@ type MultiLayerTaskNode struct {
 func (s *MultiLayerTimeWheel) New() (*MultiLayerTimeWheel, error) {
 	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	multiLayerTimeWheel := new(MultiLayerTimeWheel)
-	multiLayerTimeWheel.MaxScale = domain.MAX_SCALE
+	multiLayerTimeWheel.MaxScale = domain.SECOND_SCALE
 	multiLayerTimeWheel.CurrentScale = 0
 	multiLayerTimeWheel.StartupTime = now
 	multiLayerTimeWheel.CurrentTime = now
 	multiLayerTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
-	for scale := 0; scale < domain.MAX_SCALE; scale++ {
+	for scale := 0; scale < domain.SECOND_SCALE; scale++ {
 		taskDetailList := make([]MultiLayerTaskDetail, 0, 16)
 		taskNode := MultiLayerTaskNode{}
 		taskNode.ID = scale + 1
