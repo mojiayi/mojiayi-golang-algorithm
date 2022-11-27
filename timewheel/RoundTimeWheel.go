@@ -53,12 +53,12 @@ type RoundTaskDetail struct {
 func (s *RoundTimeWheel) New() (*RoundTimeWheel, error) {
 	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	roundTimeWheel := new(RoundTimeWheel)
-	roundTimeWheel.MaxScale = domain.MAX_SCALE
+	roundTimeWheel.MaxScale = domain.SECOND_SCALE
 	roundTimeWheel.CurrentScale = 0
 	roundTimeWheel.StartupTime = now
 	roundTimeWheel.CurrentTime = now
 	roundTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
-	for scale := 0; scale < domain.MAX_SCALE; scale++ {
+	for scale := 0; scale < domain.SECOND_SCALE; scale++ {
 		taskDetailList := make([]RoundTaskDetail, 0, 16)
 		taskNode := RoundTaskNode{}
 		taskNode.ID = scale + 1
@@ -106,13 +106,6 @@ func (s *RoundTimeWheel) AddTask(delay int, repeatFlag bool) error {
 	*taskNode.TaskDetailList = append(*taskNode.TaskDetailList, newTask)
 
 	return nil
-}
-
-/**
-* 删除任务
- */
-func (s *RoundTimeWheel) DeleteTask(node *linkedlist.Node) (bool, error) {
-	return true, nil
 }
 
 /**

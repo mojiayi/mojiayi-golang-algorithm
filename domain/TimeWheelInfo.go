@@ -3,7 +3,9 @@ package domain
 import "mojiayi-golang-algorithm/linkedlist"
 
 var (
-	MAX_SCALE            int = 60
+	HOUR_SCALE           int = 24
+	MINITE_SCALE         int = 60
+	SECOND_SCALE         int = 60
 	ONE_THOUSAND             = 1000
 	ONE_DAY_IN_SECOND        = 86400
 	ONE_HOUR_IN_SECOND       = 3600
@@ -14,6 +16,7 @@ var (
 type LayerName int
 
 const (
+	UNKNOWN      = 0
 	LAYER_HOUR   = 1
 	LAYER_MINUTE = 2
 	LAYER_SECOND = 3

@@ -33,12 +33,12 @@ type SimpleTaskNode struct {
 func (s *SimpleTimeWheel) New() (*SimpleTimeWheel, error) {
 	now := int(time.Now().UnixMilli() / int64(domain.ONE_THOUSAND))
 	simpleTimeWheel := new(SimpleTimeWheel)
-	simpleTimeWheel.MaxScale = domain.MAX_SCALE
+	simpleTimeWheel.MaxScale = domain.SECOND_SCALE
 	simpleTimeWheel.CurrentScale = 0
 	simpleTimeWheel.StartupTime = now
 	simpleTimeWheel.CurrentTime = now
 	simpleTimeWheel.TaskNodeList = &linkedlist.CircleLinkedList{}
-	for scale := 0; scale < domain.MAX_SCALE; scale++ {
+	for scale := 0; scale < domain.SECOND_SCALE; scale++ {
 		taskDetailList := make([]domain.TaskDetail, 0, 16)
 		taskNode := SimpleTaskNode{}
 		taskNode.ID = scale + 1
@@ -79,13 +79,6 @@ func (s *SimpleTimeWheel) AddTask(delay int, repeatFlag bool) error {
 }
 
 /**
-* 删除任务
- */
-func (s *SimpleTimeWheel) DeleteTask(node *linkedlist.Node) (bool, error) {
-	return true, nil
-}
-
-/**
 * 调度并执行任务
  */
 func (s *SimpleTimeWheel) ExecuteTask() {
@@ -96,6 +89,9 @@ func (s *SimpleTimeWheel) ExecuteTask() {
 		taskList := node.Data.(SimpleTaskNode).TaskDetailList
 		if len(*taskList) > 0 {
 			for _, task := range *taskList {
+				if task.ExecuteFlag {
+					continue
+				}
 				fmt.Print("执行简单时间轮任务(id=" + task.ID + ",scale=" + strconv.Itoa(task.Scale) + ")，")
 				fmt.Println("时间=" + time.Now().Format("2006-01-02 15:04:05"))
 			}
